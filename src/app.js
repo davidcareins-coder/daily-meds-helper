@@ -40,7 +40,9 @@ const els = {
 };
 
 function sourceLabel(source) {
-  switch (source) {
+  // The SDK returns inferenceSource in lowercase ("in_cloud" / "on_device");
+  // normalize so real AI answers show their badge instead of an empty label.
+  switch ((source || "").toUpperCase()) {
     case "ON_DEVICE":
       return "Answered on your device — no internet needed.";
     case "IN_CLOUD":
