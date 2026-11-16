@@ -87,11 +87,23 @@ export function initFirebase() {
 
     // CLOUD model: cloud only, for the harder jobs (label reading,
     // "what is this pill for", weekly summary).
+    // generationConfig notes (found Nov 16, third diagnosis round):
+    // gemini-3.5-flash is a THINKING model and thinking tokens count toward
+    // maxOutputTokens. With maxOutputTokens 400 the model spent almost the
+    // whole budget thinking and the visible answer was cut off mid-sentence
+    // (finishReason MAX_TOKENS, which the SDK returns silently, no error).
+    // So: a big output budget (2048) AND low thinking effort — these are
+    // short, simple jobs and do not need deep reasoning. Do NOT use
+    // thinkingBudget here: it is deprecated and throws on gemini-3.5-flash;
+    // thinkingLevel is the supported knob.
     const cloudModel = getGenerativeModel(ai, {
       mode: InferenceMode.ONLY_IN_CLOUD,
       inCloudParams: {
         model: "gemini-3.5-flash",
-        generationConfig: { maxOutputTokens: 400 },
+        generationConfig: {
+          maxOutputTokens: 2048,
+          thinkingConfig: { thinkingLevel: "low" },
+        },
       },
     });
 

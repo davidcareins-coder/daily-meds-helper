@@ -30,6 +30,21 @@ export function errorMessage(err) {
   return `${code}${err.message || String(err)}${statusText}`;
 }
 
+/**
+ * Throw a clear error if the model stopped because it ran out of output
+ * room. The SDK does NOT treat MAX_TOKENS as an error — it returns the
+ * cut-off text silently — so without this check a truncated answer looks
+ * like a complete one. Call after every generateContent.
+ */
+function assertComplete(response) {
+  const reason = response?.candidates?.[0]?.finishReason;
+  if (reason === "MAX_TOKENS") {
+    throw new Error(
+      "The AI answer was cut off (it ran out of output room). Please tap again."
+    );
+  }
+}
+
 /** Ask a routine question. Falls back to `fallbackText` if AI is unavailable.
  * The `error` field carries the real failure so the UI can show it instead
  * of failing silently. */
@@ -40,6 +55,7 @@ export async function askRoutine(question, fallbackText) {
   const prompt = `Today's medicine schedule:\n${scheduleContext()}\n\nQuestion: ${question}\nAnswer in one or two short sentences.`;
   try {
     const result = await routineModel.generateContent(prompt);
+    assertComplete(result.response);
     return {
       text: result.response.text().trim(),
       source: result.response.inferenceSource || "UNKNOWN",
@@ -57,6 +73,7 @@ export async function askCloud(question) {
   const { cloudModel } = getState();
   if (!cloudModel) throw new Error("Firebase is not configured yet.");
   const result = await cloudModel.generateContent(question);
+  assertComplete(result.response);
   return {
     text: result.response.text().trim(),
     source: result.response.inferenceSource || "IN_CLOUD",
@@ -73,6 +90,7 @@ export async function explainMedicine(name, strength) {
     `Say only general information. Do not suggest doses or changes. ` +
     `End with exactly: "This is general information, not medical advice."`;
   const result = await cloudModel.generateContent(prompt);
+  assertComplete(result.response);
   return {
     text: result.response.text().trim(),
     source: result.response.inferenceSource || "IN_CLOUD",
@@ -101,6 +119,7 @@ export async function readLabel(file) {
     prompt,
     { type: "inlineData", inlineData: { data: base64, mimeType: file.type } },
   ]);
+  assertComplete(result.response);
   const raw = result.response.text().trim();
   try {
     return { data: JSON.parse(raw), raw, source: result.response.inferenceSource || "IN_CLOUD" };
