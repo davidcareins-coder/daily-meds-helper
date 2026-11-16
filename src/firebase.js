@@ -21,6 +21,16 @@ Keep every answer to one or two short, plain sentences. Use large, simple words.
 If the schedule does not contain the answer, say "I don't know from your schedule. Please check with your pharmacist."
 Never give medical advice, never suggest changing a dose, and never diagnose anything.`;
 
+// On-device create options for the routine model. Shared with the
+// availability check in enableOnDevice() so both use identical options.
+export const ROUTINE_CREATE_OPTIONS = {
+  expectedInputs: [{ type: "text", languages: ["en"] }],
+  expectedOutputs: [{ type: "text", languages: ["en"] }],
+  initialPrompts: [
+    { role: "system", content: [{ type: "text", value: ROUTINE_SYSTEM_PROMPT }] },
+  ],
+};
+
 export const CLOUD_SYSTEM_PROMPT = `You are a careful medication information helper. Give general information only, in short plain sentences.
 Always end with: "This is general information, not medical advice. Follow your doctor's and pharmacist's instructions."
 Never suggest changing a dose, never diagnose, and never guess. If you are unsure, say so.`;
@@ -71,13 +81,7 @@ export function initFirebase() {
     const routineModel = getGenerativeModel(ai, {
       mode: InferenceMode.PREFER_ON_DEVICE,
       onDeviceParams: {
-        createOptions: {
-          expectedInputs: [{ type: "text", languages: ["en"] }],
-          expectedOutputs: [{ type: "text", languages: ["en"] }],
-          initialPrompts: [
-            { role: "system", content: [{ type: "text", value: ROUTINE_SYSTEM_PROMPT }] },
-          ],
-        },
+        createOptions: ROUTINE_CREATE_OPTIONS,
       },
     });
 
@@ -103,12 +107,37 @@ export function initFirebase() {
  * Start the on-device model download. MUST be called after/on a user
  * interaction (button click) and BEFORE any routine generateContent call.
  * onProgress receives a 0..1 fraction.
+ *
+ * IMPORTANT: initializeDeviceModel() resolves even when the on-device model
+ * is NOT available in PREFER_ON_DEVICE mode — the SDK only logs a debug
+ * message when the Prompt API is missing, it does not throw. A bare resolve
+ * therefore proves nothing. This function verifies with the Prompt API
+ * directly (LanguageModel must exist, and availability() must report
+ * "available" after the download promise resolves) and throws a clear error
+ * otherwise, so the UI never claims "ready" for a model that isn't there.
  */
 export async function enableOnDevice(onProgress) {
   if (!state.routineModel) throw new Error("Firebase is not configured yet.");
+  const LanguageModel = globalThis.LanguageModel;
+  if (typeof LanguageModel === "undefined") {
+    throw new Error(
+      "On-device AI (Gemini Nano / Prompt API) is not available in this browser. " +
+        "Use desktop Chrome 139+ with chrome://flags/#prompt-api-for-gemini-nano-multimodal-input enabled."
+    );
+  }
   await state.routineModel.initializeDeviceModel((val) => {
     if (typeof onProgress === "function") onProgress(val);
   });
+  // After the download promise resolves, the model must report "available".
+  // Anything else (unavailable / downloadable / downloading) means there is
+  // no usable on-device model — do NOT report ready.
+  const availability = await LanguageModel.availability(ROUTINE_CREATE_OPTIONS);
+  if (availability !== "available") {
+    throw new Error(
+      `On-device model is not ready (Prompt API availability: ${availability}). ` +
+        "Cloud answers will be used instead."
+    );
+  }
   state.deviceModelReady = true;
   state.status = "on-device-ready";
   return state;

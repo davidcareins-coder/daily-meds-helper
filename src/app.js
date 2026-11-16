@@ -60,6 +60,14 @@ function showAnswer(text, source) {
   speak(text);
 }
 
+// Show a real AI failure in the status line so a failed call is never
+// silent. The next successful AI answer (via updateStatus()) restores the
+// normal status. The schedule answer above still stands.
+function noteAiError(message) {
+  els.status.textContent =
+    "AI call failed: " + message + " — the schedule answer above still stands. Tap a question to try again.";
+}
+
 function renderSchedule() {
   els.schedule.innerHTML = "";
   for (const group of getScheduleState()) {
@@ -100,11 +108,15 @@ function renderSchedule() {
         const { text, source } = await explainMedicine(med.name, med.strength);
         showAnswer(text, source);
       } catch (err) {
+        // Keep the spoken answer plain (no technical error read aloud);
+        // the real error goes in the source line below it and the status line.
         showAnswer(
           "I can't look that up right now. Please ask your pharmacist what " +
             `${med.name} is for.`,
           "FALLBACK"
         );
+        els.answerSource.textContent += " AI error: " + (err.message || err);
+        noteAiError(err.message || String(err));
       }
     })
   );
@@ -132,11 +144,19 @@ async function askQuestion(kind) {
   }
   // 1. Instant, always-correct answer.
   showAnswer(plain, "NO_AI");
-  // 2. AI phrasing on top, when configured.
+  // 2. AI phrasing on top, when configured. On failure the schedule answer
+  // stands, but the real error is shown (source line + status line) instead
+  // of a silent fallback.
   if (isConfigured && getState().routineModel) {
-    const { text, source } = await askRoutine(question, plain);
-    if (text && text !== plain) showAnswer(text, source);
-    else els.answerSource.textContent = sourceLabel(source);
+    const { text, source, error } = await askRoutine(question, plain);
+    if (text && text !== plain) {
+      showAnswer(text, source);
+      updateStatus();
+    } else {
+      els.answerSource.textContent =
+        sourceLabel(source) + (error ? " AI error: " + error : "");
+      if (error) noteAiError(error);
+    }
   }
 }
 
@@ -191,7 +211,7 @@ function init() {
       updateStatus();
     } catch (err) {
       els.deviceProgress.textContent =
-        "On-device AI is not available on this device or browser. Cloud answers will be used instead.";
+        "On-device AI is not available: " + (err && err.message ? err.message : err);
       els.enableDevice.disabled = false;
     }
   });
@@ -252,10 +272,15 @@ function init() {
       const { text, source } = await askCloud(prompt);
       els.summary.textContent = text;
       showAnswer(text, source);
+      updateStatus();
     } catch (err) {
+      // Do NOT restore the static line silently: show the real failure so
+      // a dead cloud call is visible instead of looking like nothing happened.
       els.summary.textContent =
-        "The weekly summary needs the cloud AI. " +
-        "Demo week: morning pills taken 6 of 7 days, evening pills taken 7 of 7 days. Atorvastatin has about 9 doses left.";
+        "The weekly summary needs the cloud AI, and the cloud call failed: " +
+        (err.message || err) +
+        " Demo week: morning pills taken 6 of 7 days, evening pills taken 7 of 7 days. Atorvastatin has about 9 doses left.";
+      noteAiError(err.message || String(err));
     }
   });
 }

@@ -19,10 +19,23 @@ function scheduleContext() {
   return lines.join("\n");
 }
 
-/** Ask a routine question. Falls back to `fallbackText` if AI is unavailable. */
+/** One-line summary of an SDK error (message + code + HTTP status when present). */
+export function errorMessage(err) {
+  if (!err) return "Unknown error";
+  const code = err.code ? `[${err.code}] ` : "";
+  const status =
+    (err.customData && err.customData.status) ||
+    (err.customErrorData && err.customErrorData.status);
+  const statusText = status ? ` (HTTP ${status})` : "";
+  return `${code}${err.message || String(err)}${statusText}`;
+}
+
+/** Ask a routine question. Falls back to `fallbackText` if AI is unavailable.
+ * The `error` field carries the real failure so the UI can show it instead
+ * of failing silently. */
 export async function askRoutine(question, fallbackText) {
   const { routineModel } = getState();
-  if (!routineModel) return { text: fallbackText, source: "NO_AI", usedAI: false };
+  if (!routineModel) return { text: fallbackText, source: "NO_AI", usedAI: false, error: "" };
 
   const prompt = `Today's medicine schedule:\n${scheduleContext()}\n\nQuestion: ${question}\nAnswer in one or two short sentences.`;
   try {
@@ -31,10 +44,11 @@ export async function askRoutine(question, fallbackText) {
       text: result.response.text().trim(),
       source: result.response.inferenceSource || "UNKNOWN",
       usedAI: true,
+      error: "",
     };
   } catch (err) {
     console.warn("Routine AI call failed, using plain answer:", err);
-    return { text: fallbackText, source: "FALLBACK", usedAI: false };
+    return { text: fallbackText, source: "FALLBACK", usedAI: false, error: errorMessage(err) };
   }
 }
 
