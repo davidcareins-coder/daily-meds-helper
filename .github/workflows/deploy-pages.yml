@@ -1,0 +1,43 @@
+# Deploys the Daily Meds Helper demo to GitHub Pages.
+# The real Firebase config (apiKey + reCAPTCHA site key) is injected at
+# deploy time from the FIREBASE_CONFIG_JSON repository secret, so the key
+# never lives in the repo. The committed src/config.js is a placeholder.
+# Triggered on every push to main and manually (workflow_dispatch).
+name: Deploy demo to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Generate src/config.js from the FIREBASE_CONFIG_JSON secret
+        env:
+          FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
+        run: node scripts/generate-config.mjs
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
