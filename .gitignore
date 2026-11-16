@@ -1,0 +1,8 @@
+node_modules/
+.env
+.DS_Store
+# App Check debug tokens must NEVER be committed.
+*debug-token*
+# Real Firebase config lives in src/config.js (local only) until the public
+# repo is ready with App Check rules + API restrictions set. Never commit it.
+src/config.js

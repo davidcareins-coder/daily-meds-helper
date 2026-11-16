@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Meds Helper — demo</title>
+<link rel="stylesheet" href="./styles.css">
+<!--
+  Firebase JS SDK v13.3.0 via CDN (import map). No build step.
+  If you prefer a fully local setup, `npm install` then use a bundler;
+  the same imports ("firebase/app", "firebase/app-check", "firebase/ai")
+  resolve from node_modules.
+-->
+<script type="importmap">
+{
+  "imports": {
+    "firebase/app": "https://cdn.jsdelivr.net/npm/firebase@13.3.0/app/+esm",
+    "firebase/app-check": "https://cdn.jsdelivr.net/npm/firebase@13.3.0/app-check/+esm",
+    "firebase/ai": "https://cdn.jsdelivr.net/npm/firebase@13.3.0/ai/+esm"
+  }
+}
+</script>
+</head>
+<body>
+<main>
+  <h1>Daily Meds Helper</h1>
+  <p id="person" class="person"></p>
+
+  <p class="disclaimer">
+    <strong>Demo only — not medical advice.</strong>
+    Always follow your doctor's and pharmacist's instructions, and check with
+    them if anything looks wrong. All medicines and people shown here are fictional.
+  </p>
+
+  <p id="ai-status" class="status" role="status">Starting…</p>
+  <button id="enable-device" class="big-btn" type="button">Enable on-device AI</button>
+  <p id="device-progress" class="progress" role="status"></p>
+
+  <section aria-label="Ask a question">
+    <h2>Ask</h2>
+    <button class="big-btn" type="button" data-ask="morning">Did I take my morning pills?</button>
+    <button class="big-btn" type="button" data-ask="next">What's next?</button>
+    <button class="big-btn" type="button" data-ask="evening">What time is my evening dose?</button>
+    <button id="mic-btn" class="big-btn" type="button">🎤 Ask by voice</button>
+  </section>
+
+  <section aria-label="Answer">
+    <h2>Answer</h2>
+    <p id="answer" class="answer">Tap a question above, or ask by voice.</p>
+    <p id="answer-source" class="source"></p>
+  </section>
+
+  <section aria-label="Today's schedule">
+    <h2>Today's pills</h2>
+    <div id="schedule"></div>
+  </section>
+
+  <div id="refill-warnings" class="refills"></div>
+
+  <section aria-label="Read a prescription label">
+    <h2>Read a prescription label (photo)</h2>
+    <p class="hint">Uses the cloud AI — label text is small and accuracy matters. You confirm before anything is saved.</p>
+    <label class="file-label" for="label-photo">Choose a photo of the label</label>
+    <input id="label-photo" type="file" accept="image/jpeg,image/png">
+    <p id="label-result" class="result" role="status"></p>
+  </section>
+
+  <section aria-label="Weekly summary">
+    <h2>Weekly summary for family</h2>
+    <button id="summary-btn" class="big-btn secondary" type="button">Write this week's summary</button>
+    <p id="summary" class="result" role="status"></p>
+  </section>
+
+  <footer>
+    <p>Daily Meds Helper — #BuildHybridAI 2026 entry (demo). Firebase AI Logic hybrid inference:
+    routine questions on-device with Gemini Nano, harder jobs in the cloud.
+    Demo data only; no real medical information.</p>
+  </footer>
+</main>
+<script type="module" src="./src/app.js"></script>
+</body>
+</html>
