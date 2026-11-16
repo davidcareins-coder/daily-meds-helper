@@ -6,7 +6,15 @@
 <title>Daily Meds Helper — demo</title>
 <link rel="stylesheet" href="./styles.css">
 <!--
-  Firebase JS SDK v13.3.0 via CDN (import map). No build step.
+  Firebase JS SDK v13.3.0 via Google's own CDN (import map). No build step.
+  IMPORTANT: use gstatic, NOT jsDelivr "+esm" here. jsDelivr's +esm
+  bundles resolved @firebase/app to TWO versions (0.16.1 for app-check
+  vs 0.16.6 for app/ai), giving two separate component registries — so
+  initializeAppCheck() threw "Component app-check has not been registered
+  yet" and every answer fell back to the local schedule. On gstatic,
+  firebase-app-check.js and firebase-ai.js both import the SAME
+  firebase-app.js, so there is exactly one registry. Do not switch CDNs
+  without re-checking that all three modules share one @firebase/app.
   If you prefer a fully local setup, `npm install` then use a bundler;
   the same imports ("firebase/app", "firebase/app-check", "firebase/ai")
   resolve from node_modules.
@@ -14,9 +22,9 @@
 <script type="importmap">
 {
   "imports": {
-    "firebase/app": "https://cdn.jsdelivr.net/npm/firebase@13.3.0/app/+esm",
-    "firebase/app-check": "https://cdn.jsdelivr.net/npm/firebase@13.3.0/app-check/+esm",
-    "firebase/ai": "https://cdn.jsdelivr.net/npm/firebase@13.3.0/ai/+esm"
+    "firebase/app": "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js",
+    "firebase/app-check": "https://www.gstatic.com/firebasejs/13.3.0/firebase-app-check.js",
+    "firebase/ai": "https://www.gstatic.com/firebasejs/13.3.0/firebase-ai.js"
   }
 }
 </script>
