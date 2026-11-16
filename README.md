@@ -37,12 +37,21 @@ Do this once, in the Firebase console (https://console.firebase.google.com). Not
 3. When asked for a **Gemini API provider**, choose the **Gemini Developer API** (free tier, no billing).
 4. The workflow **automatically enforces Firebase App Check** for AI Logic. This is expected.
 5. Register this web app: in **Project settings → Your apps → Web app (</>)**, give it a nickname (e.g. `daily-meds-helper-web`). Copy the `firebaseConfig` object it shows.
-6. Paste the config values into `src/config.js` (replace the `YOUR_…` placeholders). **Do not commit real values to a public repo yet** — for the contest repo, the config goes in only when the repo is ready, and the App Check rules + API restrictions should be set first.
+6. **Do NOT paste the config into `src/config.js`.** That file is a committed placeholder with no real values (a real key was committed there once by mistake on Nov 16, 2026, flagged by GitHub, and rotated the same day). The real config belongs in the **FIREBASE_CONFIG_JSON** repository secret (GitHub → Settings → Secrets and variables → Actions) as one JSON object: `{"apiKey":"…","authDomain":"…","projectId":"daily-meds-helper","storageBucket":"…","messagingSenderId":"…","appId":"…","recaptchaSiteKey":"…"}`. The deploy workflow injects it into the hosted demo; it never lives in the repo. For local testing, set `window.__FIREBASE_CONFIG__` in the browser console instead of editing the file.
 7. **App Check debug token (local dev):** with the app running on `http://localhost:3000`, open DevTools → Console. The first run prints `AppCheck debug token: "…"`. In the console go to **Security → App Check → Apps tab → overflow menu → Manage debug tokens** and register it. (The scaffold sets `self.FIREBASE_APPCHECK_DEBUG_TOKEN = true` on localhost automatically.) **Never commit a debug token.**
 8. **Production attestation:** before the hosted demo goes live, set up a real attestation provider (e.g. reCAPTCHA Enterprise) in App Check and put its site key in `src/config.js` as `recaptchaSiteKey`. Debug tokens are accepted by the contest, but a real provider is the right thing for a public demo.
 
 ### Quota
 No quota request is needed: the app uses text (and one photo read) on the free tier only. If the plan ever changes to need image generation, the final quota sprint closes **Wed Nov 25, 2026, 10:00 AM PT** (form: https://forms.gle/uPcDhaYW3iVo2AYw5).
+
+---
+
+## Deployment (GitHub Pages via Actions)
+
+The demo is deployed by the `.github/workflows/deploy-pages.yml` workflow on every push to `main`. The workflow generates the real `src/config.js` from the **FIREBASE_CONFIG_JSON** repository secret (`scripts/generate-config.mjs`) and deploys the site to GitHub Pages. The committed `src/config.js` is a placeholder, so the repo holds no secrets.
+
+- Live demo: https://davidcareins-coder.github.io/daily-meds-helper/
+- To rotate the key: create a new browser key in the Google Cloud console with the same HTTP referrers + API restrictions, update the FIREBASE_CONFIG_JSON secret, delete the old key. No code change is needed — the next push redeploys with the new key.
 
 ---
 
