@@ -1,113 +1,337 @@
-/* Daily Meds Helper — big type, high contrast, big touch targets.
-   The user has poor eyesight: nothing small, nothing low-contrast. */
+/* Daily Meds Helper — MODERN preview stylesheet (Nov 23, 2026).
+   Warm, calm, premium health-app look — built for an older adult with
+   POOR EYESIGHT: huge type, very high contrast, giant tap targets.
+   Beautiful never costs readability: no small text, no low-contrast
+   pastels, no tiny icons. Visual only — same classes as styles.css. */
+
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap");
 
 :root {
-  --ink: #111;
-  --paper: #fff;
-  --accent: #0b5fff;
-  --accent-dark: #0846bd;
-  --ok: #146c2e;
-  --warn-bg: #fff4cc;
-  --line: #222;
+  --ink: #161c2b;            /* near-black blue ink — max contrast on light bg */
+  --ink-soft: #2c3548;       /* secondary text, still very dark */
+  --card: #ffffff;
+  --card-line: #d8cfc0;      /* warm hairline for card edges */
+  --primary: #0a4fd6;        /* deep blue, white text = ~7:1 contrast */
+  --primary-deep: #073a9e;
+  --primary-soft: #e6efff;   /* tint behind secondary buttons */
+  --voice: #5b21b6;          /* deep violet for the mic button */
+  --voice-deep: #43167f;
+  --ok: #0b5c28;             /* deep green text for TAKEN */
+  --ok-bg: #e2f4e6;
+  --ok-line: #0b5c28;
+  --notyet: #7a3d00;         /* dark amber-brown text for NOT YET */
+  --notyet-bg: #fdeed3;
+  --notyet-line: #b06a00;
+  --warn-bg: #fff3d6;
+  --warn-line: #8a5a00;
+  --focus: #b34700;          /* thick, unmissable focus ring */
+  --shadow: 0 10px 30px rgba(60, 42, 10, 0.14), 0 2px 6px rgba(60, 42, 10, 0.10);
+  --shadow-btn: 0 6px 18px rgba(7, 58, 158, 0.35);
+  --radius: 24px;
 }
 
 * { box-sizing: border-box; }
 
+html { -webkit-text-size-adjust: 100%; }
+
 body {
   margin: 0;
-  background: var(--paper);
   color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 20px;
-  line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 21px;
+  line-height: 1.55;
+  /* Warm dawn gradient — stays light everywhere so dark text always reads. */
+  background: linear-gradient(165deg, #fdf8ef 0%, #faefdb 45%, #f3e3c8 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 main {
-  max-width: 760px;
+  max-width: 780px;
   margin: 0 auto;
-  padding: 16px 20px 64px;
+  padding: 28px 20px 72px;
 }
 
-h1 { font-size: 2.4rem; margin: 0.4em 0 0.2em; }
-h2 { font-size: 1.6rem; margin: 1.2em 0 0.5em; }
+/* ---------- Header ---------- */
 
-.person { font-size: 1.25rem; font-weight: 600; }
+h1 {
+  font-size: 2.7rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0.2em 0 0.1em;
+  color: var(--ink);
+}
+
+.person {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin: 0.2em 0 0.9em;
+}
+
+h2 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 0.55em;
+  color: var(--ink);
+}
+
+/* ---------- Cards for each section ---------- */
+
+section {
+  background: var(--card);
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px 26px 20px;
+  margin: 26px 0;
+}
+
+/* ---------- Disclaimer (must stay obvious) ---------- */
 
 .disclaimer {
   background: var(--warn-bg);
-  border: 2px solid var(--line);
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 1.15rem;
+  border: 3px solid var(--warn-line);
+  border-radius: 18px;
+  padding: 16px 20px;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--ink);
+  box-shadow: var(--shadow);
 }
+.disclaimer strong { font-size: 1.3rem; }
 
-.status, .progress, .hint, .source {
-  font-size: 1.15rem;
+/* ---------- Status lines ---------- */
+
+.status, .progress, .hint {
+  font-size: 1.2rem;
+  color: var(--ink-soft);
 }
+.status { font-weight: 700; color: var(--ink); }
+.progress:empty, .status:empty { display: none; }
+
+/* ---------- Buttons: giant pills, strong color ---------- */
 
 .big-btn {
   display: block;
   width: 100%;
-  min-height: 76px;
-  margin: 12px 0;
-  padding: 14px 20px;
-  font-size: 1.5rem;
+  min-height: 84px;
+  margin: 14px 0;
+  padding: 18px 26px;
+  font-family: inherit;
+  font-size: 1.55rem;
   font-weight: 700;
-  line-height: 1.25;
-  color: #fff;
-  background: var(--accent);
-  border: 3px solid var(--line);
-  border-radius: 16px;
-  cursor: pointer;
+  line-height: 1.3;
   text-align: left;
+  color: #fff;
+  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-deep) 100%);
+  border: none;
+  border-radius: 999px;
+  box-shadow: var(--shadow-btn);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
-.big-btn:hover, .big-btn:focus-visible { background: var(--accent-dark); outline: 4px solid #ffbf47; }
-.big-btn:disabled { background: #888; cursor: not-allowed; }
-.big-btn.secondary { background: #fff; color: var(--ink); }
-.big-btn.secondary:hover, .big-btn.secondary:focus-visible { background: #e8f0ff; }
-.big-btn.ghost { background: #fff; color: var(--ink); min-height: 56px; font-size: 1.15rem; }
+.big-btn:hover { background: linear-gradient(180deg, #0d5bf0 0%, var(--primary) 100%); }
+.big-btn:active { transform: scale(0.99); box-shadow: 0 3px 10px rgba(7, 58, 158, 0.35); }
+
+.big-btn:focus-visible,
+.file-label:focus-visible,
+input[type="file"]:focus-visible + .file-label {
+  outline: 5px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.big-btn:disabled {
+  background: #6b7280;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Voice button — its own deep violet so it reads as "talk to me" */
+#mic-btn {
+  background: linear-gradient(180deg, var(--voice) 0%, var(--voice-deep) 100%);
+  box-shadow: 0 6px 18px rgba(67, 22, 127, 0.35);
+}
+#mic-btn:hover { background: linear-gradient(180deg, #6d28d9 0%, var(--voice) 100%); }
+
+/* Secondary: white pill, thick blue ring, dark text */
+.big-btn.secondary {
+  background: #fff;
+  color: var(--primary-deep);
+  border: 3px solid var(--primary);
+  box-shadow: 0 4px 14px rgba(60, 42, 10, 0.12);
+}
+.big-btn.secondary:hover { background: var(--primary-soft); }
+
+/* Ghost: quieter, but still a big, easy target */
+.big-btn.ghost {
+  background: var(--primary-soft);
+  color: var(--primary-deep);
+  border: 3px solid #9db9f2;
+  box-shadow: none;
+  min-height: 64px;
+  font-size: 1.25rem;
+  text-align: center;
+}
+.big-btn.ghost:hover { background: #d7e5ff; }
+
+/* ---------- Answer ---------- */
 
 .answer {
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 700;
-  line-height: 1.35;
-  background: #eef4ff;
-  border: 3px solid var(--line);
-  border-radius: 16px;
-  padding: 20px;
-  min-height: 4em;
+  line-height: 1.4;
+  color: var(--ink);
+  background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
+  border: 3px solid var(--primary);
+  border-radius: 20px;
+  padding: 24px 26px;
+  min-height: 4.2em;
+  margin: 0 0 14px;
+  box-shadow: inset 0 0 0 1px #c9dcff;
 }
 
-.source { color: #333; font-style: italic; }
+/* Source badge — a clear pill that says where the answer came from */
+.source {
+  display: inline-block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-style: normal;
+  color: var(--ink);
+  background: #eef3ff;
+  border: 2px solid var(--primary);
+  border-radius: 999px;
+  padding: 8px 18px 8px 14px;
+  margin: 0;
+}
+.source::before {
+  content: "●";
+  color: var(--primary);
+  margin-right: 10px;
+  font-size: 0.9em;
+}
+.source:empty { display: none; }
+
+/* ---------- Dose cards: TAKEN vs NOT YET at a glance ---------- */
 
 .dose-card {
-  border: 3px solid var(--line);
-  border-radius: 16px;
-  padding: 16px 20px;
-  margin: 16px 0;
+  border: 3px solid var(--notyet-line);
+  border-radius: 20px;
+  padding: 22px 24px 14px;
+  margin: 20px 0;
+  background: var(--notyet-bg);
+  box-shadow: 0 6px 18px rgba(60, 42, 10, 0.10);
 }
 
-.dose-card.taken { border-color: var(--ok); background: #eef7ee; }
-.dose-card .state { font-size: 1.4rem; font-weight: 700; }
-.dose-card.taken .state { color: var(--ok); }
-.dose-card ul { font-size: 1.3rem; }
+.dose-card.taken {
+  border-color: var(--ok-line);
+  background: var(--ok-bg);
+}
 
-.refills { background: var(--warn-bg); border: 2px solid var(--line); border-radius: 12px; padding: 4px 16px; margin: 20px 0; }
+.dose-card h2 { margin-bottom: 0.35em; }
+
+.dose-card ul {
+  font-size: 1.35rem;
+  line-height: 1.55;
+  margin: 0.3em 0 0.6em;
+  padding-left: 1.1em;
+}
+.dose-card li { margin: 0.25em 0; }
+
+.dose-card .state {
+  display: inline-block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  border-radius: 999px;
+  padding: 6px 20px;
+  margin: 8px 0 4px;
+  color: var(--notyet);
+  background: #fff;
+  border: 3px solid var(--notyet-line);
+}
+.dose-card.taken .state {
+  color: #fff;
+  background: var(--ok);
+  border-color: var(--ok);
+}
+
+/* "I took them" inside a not-yet card: strong green, unmistakable */
+.dose-card .big-btn.secondary {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+.dose-card .big-btn.secondary:hover { background: var(--ok-bg); }
+.dose-card.taken .big-btn.secondary {
+  color: var(--primary-deep);
+  border-color: var(--primary);
+}
+.dose-card.taken .big-btn.secondary:hover { background: var(--primary-soft); }
+
+/* ---------- Refill warnings ---------- */
+
+.refills {
+  background: var(--warn-bg);
+  border: 3px solid var(--warn-line);
+  border-radius: 18px;
+  padding: 10px 22px;
+  margin: 24px 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
 .refills:empty { display: none; }
+
+/* ---------- Photo label picker ---------- */
 
 .file-label {
   display: inline-block;
-  padding: 14px 20px;
-  font-size: 1.3rem;
+  padding: 18px 28px;
+  font-size: 1.4rem;
   font-weight: 700;
+  color: var(--primary-deep);
   background: #fff;
-  border: 3px solid var(--line);
-  border-radius: 16px;
+  border: 3px solid var(--primary);
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(60, 42, 10, 0.12);
   cursor: pointer;
 }
+.file-label:hover { background: var(--primary-soft); }
 input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; }
 
-.result { font-size: 1.3rem; }
+.result { font-size: 1.35rem; line-height: 1.55; }
+.result:empty { display: none; }
 
-footer { margin-top: 40px; font-size: 1rem; color: #333; border-top: 2px solid var(--line); padding-top: 12px; }
+/* ---------- Footer ---------- */
+
+footer {
+  margin-top: 44px;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  border-top: 2px solid var(--card-line);
+  padding-top: 16px;
+}
+
+/* Gentle entrance, off for anyone who prefers stillness */
+@media (prefers-reduced-motion: no-preference) {
+  section, .disclaimer, .refills { animation: rise 0.35s ease both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 20px; }
+  main { padding: 20px 14px 56px; }
+  section { padding: 20px 18px 14px; }
+  h1 { font-size: 2.3rem; }
+  /* Never smaller than the original design: buttons 24px, answer 32px. */
+  .big-btn { font-size: 1.5rem; min-height: 80px; padding: 16px 20px; }
+  .answer { font-size: 2rem; padding: 20px; }
+}
